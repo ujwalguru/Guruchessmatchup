@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Tournament Bracket</title>
+  <style>
+    /* Styles */
+    body {
+      background: linear-gradient(145deg, #1e1e2a, #252538);
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    nav, footer, #upload-box, #bracket {
+      margin: 20px 0;
+      width: 80%;
+      max-width: 800px;
+      background: #2b2b40;
+      box-shadow: 8px 8px 16px #1b1b2a, -8px -8px 16px #373757;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    nav, footer {
+      width: 100%;
+      padding: 10px 20px;
+    }
+
+    button, input {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #1e1e2a;
+      color: #ffffff;
+    }
+
+    button {
+      background: #8c8cff;
+      cursor: pointer;
+    }
+
+    .matchup {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      padding: 10px;
+      background: #1e1e2a;
+      border-radius: 8px;
+      color: #ffffff;
+    }
+
+    #upload-box {
+      display: none; /* Initially hidden */
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #logo {
+      margin: 20px 0;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    #logo:hover {
+      transform: scale(1.1);
+    }
+
+    #logo img {
+      width: 150px;
+      height: 150px;
+    }
+
+    /* Search Bar */
+    #search-bar {
+      margin-bottom: 20px;
+      padding: 10px;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+      border: none;
+      background: #1e1e2a;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav>
+    <h1>Tournament Bracket</h1>
+  </nav>
+
+  <!-- Logo (Click to reveal the upload box) -->
+  <div id="logo">
+    <img src="logo.png" alt="Click to Start">
+  </div>
+
+  <!-- Upload Box -->
+  <div id="upload-box">
+    <h2>Upload Student Names</h2>
+    <input type="file" id="file-input" accept=".csv">
+    <input type="password" id="password" placeholder="Admin Password">
+    <button id="upload-names">Upload</button>
+  </div>
+
+  <!-- Bracket Section -->
+  <div id="bracket">
+    <h3>Round 1 Matchups</h3>
+    <!-- Search Bar -->
+    <input type="text" id="search-bar" placeholder="Search student name">
+    <div id="matchups"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>Created with ❤️ for Chess Events</p>
+  </footer>
+
+  <script>
+    let students = [];
+    const password = "admin123"; // Predefined password
+
+    // Show upload box and hide logo when clicked
+    document.getElementById("logo").addEventListener("click", () => {
+      document.getElementById("upload-box").style.display = "block";
+      document.getElementById("logo").style.display = "none";
+    });
+
+    // Handle file upload
+    document.getElementById("upload-names").addEventListener("click", () => {
+      const fileInput = document.getElementById("file-input").files[0];
+      const passInput = document.getElementById("password").value;
+
+      if (!fileInput) {
+        alert("Please select a CSV file.");
+        return;
+      }
+
+      if (passInput !== password) {
+        alert("Invalid password!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        students = content.split("\n").map((name) => name.trim()).filter((name) => name);
+        generateBracket();
+      };
+      reader.readAsText(fileInput);
+    });
+
+    // Generate bracket matchups
+    function generateBracket() {
+      const matchupDiv = document.getElementById("matchups");
+      matchupDiv.innerHTML = ""; // Clear previous matchups
+
+      for (let i = 0; i < students.length; i += 2) {
+        const player1 = students[i] || "TBD";
+        const player2 = students[i + 1] || "TBD";
+
+        const matchup = document.createElement("div");
+        matchup.className = "matchup";
+        matchup.innerHTML = `
+          <span>${player1}</span>
+          <span>vs</span>
+          <span>${player2}</span>
+        `;
+        matchupDiv.appendChild(matchup);
+      }
+    }
+
+    // Search functionality
+    document.getElementById("search-bar").addEventListener("input", (event) => {
+      const searchTerm = event.target.value.toLowerCase();
+      const matchupDiv = document.getElementById("matchups");
+
+      matchupDiv.innerHTML = ""; // Clear previous results
+
+      const filteredStudents = students.filter((name) =>
+        name.toLowerCase().includes(searchTerm)
+      );
+
+      for (let i = 0; i < filteredStudents.length; i += 2) {
+        const player1 = filteredStudents[i] || "TBD";
+        const player2 = filteredStudents[i + 1] || "TBD";
+
+        const matchup = document.createElement("div");
+        matchup.className = "matchup";
+        matchup.innerHTML = `
+          <span>${player1}</span>
+          <span>vs</span>
+          <span>${player2}</span>
+        `;
+        matchupDiv.appendChild(matchup);
+      }
+    });
+  </script>
+</body>
+</html>
